@@ -31,7 +31,7 @@
 
   --police: "Archivo", "Helvetica Neue", Arial, sans-serif;
   --largeur: 1200px;
-  --dock-l: clamp(210px, 19vw, 250px);  /* largeur du demi-ballon ; sa hauteur en est la moitié */
+  --dock-l: clamp(232px, 21vw, 272px);  /* largeur du demi-ballon ; sa hauteur en est la moitié */
   --gouttiere: 20px;
   --ombre: var(--noir);    /* couleur de l'ombre portée dure, redéfinie par bande */
   color-scheme: light;
@@ -160,7 +160,7 @@ h1, h2, h3 {
 .hero__actions { display: flex; flex-wrap: wrap; gap: 18px 22px; padding-left: 6px; }
 
 @media (max-width: 600px) {
-  :root { --dock-l: 214px; }
+  :root { --dock-l: 236px; }
   .hero__grille { padding-top: 48px !important; }
   .hero__blason { display: none; }
   .hero__actions .bouton { padding: 12px 20px; font-size: 1rem; }
@@ -268,7 +268,7 @@ a.rang:hover { background: var(--jaune); padding-inline: 20px; }
 .note { margin-top: 22px; }
 
 /* ---------- Prochains matchs ---------- */
-.matchs { display: grid; grid-template-columns: minmax(0, .85fr) minmax(0, 1.15fr); gap: clamp(36px, 6vw, 72px); align-items: center; }
+.matchs { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 24px clamp(36px, 6vw, 72px); align-items: end; }
 .matchs__texte { display: grid; gap: 24px; justify-items: start; min-width: 0; }
 .matchs__texte p { color: var(--brume); max-width: 44ch; }
 .matchs__texte .bouton { margin-left: 6px; }
@@ -283,19 +283,6 @@ a.rang:hover { background: var(--jaune); padding-inline: 20px; }
 .cadre-widget__secours p { color: var(--encre); max-width: 52ch; }
 .cadre-widget__secours .bouton { margin: 4px 0 6px 6px; }
 
-/* ---------- Instagram ---------- */
-.insta { display: grid; gap: 30px; justify-items: start; }
-.insta__titre {
-  font-stretch: 62%; line-height: .9; letter-spacing: -.01em; overflow-wrap: anywhere;
-  font-size: clamp(2.7rem, 10.5vw, 7.6rem);
-  transform: rotate(-3deg); transform-origin: 0 100%; margin-top: .4em;
-}
-.insta__pied { display: flex; flex-wrap: wrap; align-items: center; gap: 22px 40px; }
-.insta__texte { max-width: 46ch; font-size: 1.15rem; font-weight: 500; }
-.insta__pied .bouton { margin-left: 6px; }
-.insta__publications { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 24px; width: 100%; align-items: start; }
-.insta__publications .instagram-media { min-width: 0 !important; width: 100% !important; margin: 0 !important; }
-
 /* ---------- Partenaires ---------- */
 .partenaires { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 18px; list-style: none; margin: 0; padding: 0; }
 .partenaire { display: grid; place-items: center; min-height: 112px; padding: 16px; text-align: center; border: 2px dashed var(--noir); font-size: .9rem; font-weight: 600; color: var(--encre); }
@@ -304,6 +291,51 @@ a.rang:hover { background: var(--jaune); padding-inline: 20px; }
 .soutien { padding: clamp(22px, 4vw, 32px); background: var(--blanc); border: 4px solid var(--noir); box-shadow: 10px 10px 0 var(--noir); --ombre: var(--jaune); }
 .soutien__titre { font-size: clamp(2rem, 4vw, 2.6rem); }
 .bande--jaune .soutien > p { color: var(--encre); }
+/* Logo de partenaire : carte blanche à hauteur fixe, logo en couleur contenu dedans */
+.logo-partenaire a {
+  display: grid; place-items: center; height: 120px; padding: 14px 18px;
+  background: var(--blanc); border: 3px solid var(--noir); box-shadow: 6px 6px 0 var(--noir);
+  transition: transform .15s ease, box-shadow .15s ease;
+}
+.logo-partenaire a:hover, .logo-partenaire a:focus-visible { transform: translate(-3px, -3px); box-shadow: 9px 9px 0 var(--jaune); }
+.logo-partenaire img { max-width: 100%; max-height: 86px; width: auto; height: auto; object-fit: contain; }
+.grille-partenaires { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 26px; list-style: none; margin: 0; padding: 0; }
+
+/* Bandeau défilant de l'accueil : deux listes identiques. Le défilement automatique
+   et manuel (glisser, faire défiler, flèches) est géré dans main.js */
+.defile-partenaires {
+  overflow-x: auto; overscroll-behavior-x: contain; scrollbar-width: none;
+  padding-block: 8px 18px; cursor: grab;
+  -webkit-mask-image: linear-gradient(90deg, transparent, #000 7%, #000 93%, transparent);
+          mask-image: linear-gradient(90deg, transparent, #000 7%, #000 93%, transparent);
+}
+.defile-partenaires::-webkit-scrollbar { display: none; }
+.defile-partenaires.est-tire { cursor: grabbing; }
+.defile-partenaires.est-tire a { pointer-events: none; }
+.defile-partenaires__piste { display: flex; width: max-content; }
+.defile-partenaires__liste { display: flex; gap: 28px; padding: 0 28px 0 0; margin: 0; list-style: none; }
+.defile-partenaires .logo-partenaire a { width: 220px; -webkit-user-drag: none; }
+.defile-partenaires img { -webkit-user-drag: none; user-select: none; }
+.defile-partenaires__commandes { display: flex; justify-content: flex-end; gap: 14px; margin-bottom: 26px; padding-right: 6px; }
+.fleche-defile {
+  display: grid; place-items: center; width: 52px; height: 44px; padding: 0; cursor: pointer;
+  background: var(--noir); color: var(--jaune); border: 3px solid var(--noir);
+  transform: skewX(-10deg); box-shadow: 5px 5px 0 var(--jaune);
+  transition: transform .15s ease, box-shadow .15s ease;
+}
+.fleche-defile svg { width: 22px; height: 22px; transform: skewX(10deg); fill: none; stroke: currentColor; stroke-width: 3; stroke-linecap: round; stroke-linejoin: round; }
+.fleche-defile:hover { transform: skewX(-10deg) translate(-2px, -2px); box-shadow: 7px 7px 0 var(--jaune); }
+.fleche-defile:active { transform: skewX(-10deg) translate(2px, 2px); box-shadow: 2px 2px 0 var(--jaune); }
+@media (prefers-reduced-motion: reduce) {
+  .defile-partenaires__liste[aria-hidden="true"] { display: none; }
+  .defile-partenaires__liste { padding-left: max(var(--gouttiere), env(safe-area-inset-left, 0px)); }
+}
+@media (max-width: 600px) {
+  .defile-partenaires .logo-partenaire a { width: 170px; height: 100px; }
+  .defile-partenaires .logo-partenaire img { max-height: 66px; }
+  .grille-partenaires { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 18px; }
+}
+
 .appel {
   display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 22px 32px;
   margin-top: 36px; padding: 28px 30px; background: var(--noir); color: var(--blanc); --ombre: var(--blanc);
@@ -382,7 +414,23 @@ a.rang:hover { background: var(--jaune); padding-inline: 20px; }
 .etape p { max-width: 40ch; }
 
 /* Catégorie d'équipes */
-.equipe-bloc { scroll-margin-top: 90px; }
+.equipe-bloc { scroll-margin-top: 90px; position: relative; overflow: hidden; isolation: isolate; }
+/* Photo en filigrane : le noir et blanc se fond dans la couleur du bandeau (multiplication),
+   fondu en haut et en bas pour se raccorder aux bandes voisines */
+.equipe-bloc__photo {
+  position: absolute; inset: 0; z-index: -1; pointer-events: none;
+  background-size: cover; background-position: 50% 38%; background-repeat: no-repeat;
+  mix-blend-mode: multiply; opacity: 0; transform: scale(1.12);
+  -webkit-mask-image: linear-gradient(to bottom, transparent 0, #000 22%, #000 78%, transparent 100%);
+          mask-image: linear-gradient(to bottom, transparent 0, #000 22%, #000 78%, transparent 100%);
+  transition: opacity .6s ease, transform 1.8s cubic-bezier(.2, .7, .2, 1);
+}
+/* Révélée au survol de la catégorie (ou quand un de ses liens reçoit le focus clavier) */
+.equipe-bloc:hover .equipe-bloc__photo, .equipe-bloc:focus-within .equipe-bloc__photo { opacity: .16; transform: scale(1.02); }
+.bande--pale.equipe-bloc:hover .equipe-bloc__photo, .bande--pale.equipe-bloc:focus-within .equipe-bloc__photo { opacity: .2; }
+@media (prefers-reduced-motion: reduce) {
+  .equipe-bloc__photo { transition: none; transform: none; }
+}
 .equipe-bloc__grille { display: grid; grid-template-columns: minmax(0, .7fr) minmax(0, 1.3fr); gap: 20px clamp(36px, 6vw, 80px); align-items: start; }
 .equipe-bloc__titre { font-stretch: 66%; text-transform: uppercase; line-height: .85; font-size: clamp(3.8rem, 12vw, 7.6rem); transform: rotate(-3deg); transform-origin: 0 100%; }
 .equipe-bloc__texte { display: grid; gap: 18px; min-width: 0; }
@@ -457,20 +505,26 @@ a.rang:hover { background: var(--jaune); padding-inline: 20px; }
 .dock__ballon-fond { fill: var(--noir); stroke: var(--blanc); stroke-width: 3; }
 .dock__panneaux polygon { fill: var(--jaune); stroke: var(--jaune); stroke-width: 2.4; stroke-linejoin: round; }
 .dock__seg { pointer-events: auto; cursor: pointer; transition: transform .2s cubic-bezier(.2, .9, .3, 1.3); }
-.dock__seg path { fill: var(--noir); stroke: var(--blanc); stroke-width: 3; stroke-linejoin: round; transition: fill .15s ease; }
+.dock__seg > path { fill: var(--noir); stroke: var(--blanc); stroke-width: 3; stroke-linejoin: round; transition: fill .15s ease; }
 .dock__seg text {
   fill: var(--jaune); font-family: var(--police); font-style: italic; font-weight: 900; font-stretch: 80%;
-  font-size: 14px; letter-spacing: 0; pointer-events: none; transition: fill .15s ease;
+  font-size: 15px; letter-spacing: .01em; pointer-events: none; transition: fill .15s ease;
 }
 .dock__seg:hover, .dock__seg:focus-visible { transform: translate(var(--dx), var(--dy)); outline: none; }
-.dock__seg:hover path, .dock__seg:focus-visible path { fill: var(--jaune); stroke: var(--noir); }
+.dock__seg:hover > path, .dock__seg:focus-visible > path { fill: var(--jaune); stroke: var(--noir); }
 .dock__seg:hover text, .dock__seg:focus-visible text { fill: var(--noir); }
-.dock__icone rect, .dock__icone circle { fill: none; stroke: var(--jaune); stroke-width: 2.6; transition: stroke .15s ease; }
+.dock__icone--insta rect, .dock__icone--insta circle { fill: none; stroke: var(--jaune); stroke-width: 2.6; transition: stroke .15s ease; }
 .dock__icone .dock__point { fill: var(--jaune); stroke: none; transition: fill .15s ease; }
-.dock__seg:hover .dock__icone rect, .dock__seg:hover .dock__icone circle,
-.dock__seg:focus-visible .dock__icone rect, .dock__seg:focus-visible .dock__icone circle { stroke: var(--noir); }
+.dock__seg:hover .dock__icone--insta rect, .dock__seg:hover .dock__icone--insta circle,
+.dock__seg:focus-visible .dock__icone--insta rect, .dock__seg:focus-visible .dock__icone--insta circle { stroke: var(--noir); }
+.dock__icone--panier .plein { fill: var(--jaune); transition: fill .15s ease; }
+.dock__icone--panier .anse { fill: none; stroke: var(--jaune); stroke-width: 2.8; stroke-linejoin: round; transition: stroke .15s ease; }
+.dock__icone--panier .fente { fill: none; stroke: var(--noir); stroke-width: 1.9; stroke-linecap: round; transition: stroke .15s ease; }
+.dock__seg:hover .dock__icone--panier .plein, .dock__seg:focus-visible .dock__icone--panier .plein { fill: var(--noir); }
+.dock__seg:hover .dock__icone--panier .anse, .dock__seg:focus-visible .dock__icone--panier .anse { stroke: var(--noir); }
+.dock__seg:hover .dock__icone--panier .fente, .dock__seg:focus-visible .dock__icone--panier .fente { stroke: var(--jaune); }
 .dock__seg:hover .dock__point, .dock__seg:focus-visible .dock__point { fill: var(--noir); }
-.dock__seg:focus-visible path { stroke: var(--bleu); stroke-width: 5; }
+.dock__seg:focus-visible > path { stroke: var(--bleu); stroke-width: 5; }
 @media (prefers-reduced-motion: no-preference) {
   .dock { animation: dock-entree .7s cubic-bezier(.2, .9, .3, 1.15) .5s backwards; }
 }

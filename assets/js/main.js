@@ -1,7 +1,7 @@
 /* ==========================================================================
    ESSAM Handball — comportements du site
    1. Menu mobile
-   2. Intégrations externes (Score'n'co, HelloAsso, Instagram), pilotées par config.js
+   2. Intégrations externes (Score'n'co, HelloAsso, Instagram, boutique), pilotées par config.js
    3. Formulaire de contact
    4. Année du pied de page
    ========================================================================== */
@@ -59,28 +59,84 @@
     var url = valeur(lien.getAttribute("data-lien"));
     if (url) { lien.setAttribute("href", url); lien.hidden = false; }
   });
-  // Publications Instagram choisies (outil d'intégration officiel d'Instagram)
-  var publications = valeur("instagram.publications") || [];
-  var zoneInsta = document.querySelector("[data-instagram]");
-  if (zoneInsta && publications.length) {
-    publications.forEach(function (url) {
-      var bloc = document.createElement("blockquote");
-      bloc.className = "instagram-media";
-      bloc.setAttribute("data-instgrm-permalink", url);
-      bloc.setAttribute("data-instgrm-version", "14");
-      var lien = document.createElement("a");
-      lien.href = url; lien.textContent = "Voir la publication sur Instagram";
-      bloc.appendChild(lien);
-      zoneInsta.appendChild(bloc);
+
+  /* 2 bis. Bandeau des partenaires ------------------------------------------
+     Défile tout seul, et se fait défiler à la main : glisser (souris ou doigt),
+     pavé tactile, flèches. La molette verticale reste réservée à la page. Toute action manuelle met le défilement
+     automatique en pause quelques secondes. La liste est doublée pour boucler.  */
+  var bande = document.getElementById("defile-partenaires");
+  if (bande) {
+    var listes = bande.querySelectorAll(".defile-partenaires__liste");
+    var calmeP = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    var VITESSE = 40;                         // pixels par seconde
+    var pos = 0, cible = null, pauseJusqua = 0, survol = false, dernier = null, ecrit = -1;
+    var largeur = function () { return listes[0].getBoundingClientRect().width; };
+    var boucle = !calmeP && listes.length > 1;
+    var appliquer = function () {
+      var w = largeur();
+      if (boucle && w > 0) { pos = ((pos % w) + w) % w; }
+      ecrit = Math.round(pos);
+      bande.scrollLeft = ecrit;
+    };
+    var pause = function (ms) { pauseJusqua = performance.now() + ms; cible = null; };
+
+    // Défilement natif (doigt, pavé tactile, molette horizontale, clavier)
+    bande.addEventListener("scroll", function () {
+      if (Math.abs(bande.scrollLeft - ecrit) <= 1) { return; }   // c'est nous
+      pos = bande.scrollLeft; pause(3000);
+      if (boucle) {
+        var w = largeur();
+        if (pos >= w) { pos -= w; appliquer(); }
+      }
+    }, { passive: true });
+    // Glisser à la souris
+    var depart = null, deplace = false;
+    bande.addEventListener("pointerdown", function (e) {
+      if (e.pointerType !== "mouse" || e.button !== 0) { return; }
+      depart = { x: e.clientX, pos: pos }; deplace = false;
     });
-    zoneInsta.hidden = false;
-    var script = document.createElement("script");
-    script.async = true; script.src = "https://www.instagram.com/embed.js";
-    document.body.appendChild(script);
+    window.addEventListener("pointermove", function (e) {
+      if (!depart) { return; }
+      var dx = e.clientX - depart.x;
+      if (!deplace && Math.abs(dx) > 5) { deplace = true; bande.classList.add("est-tire"); }
+      if (deplace) { pos = depart.pos - dx; appliquer(); pause(3000); }
+    });
+    window.addEventListener("pointerup", function () {
+      if (!depart) { return; }
+      depart = null;
+      setTimeout(function () { bande.classList.remove("est-tire"); }, 0);
+    });
+    // Flèches : une carte et demie par clic, avec un glissement adouci
+    document.querySelectorAll("[data-defile]").forEach(function (bouton) {
+      bouton.addEventListener("click", function () {
+        var carte = bande.querySelector(".logo-partenaire");
+        var pas = carte ? carte.getBoundingClientRect().width + 28 : 250;
+        var depuis = cible === null ? pos : cible;
+        pause(4000);
+        cible = depuis + Number(bouton.getAttribute("data-defile")) * pas * 1.5;
+        if (!boucle) { cible = Math.max(0, Math.min(cible, bande.scrollWidth - bande.clientWidth)); }
+      });
+    });
+    bande.addEventListener("mouseenter", function () { survol = true; });
+    bande.addEventListener("mouseleave", function () { survol = false; pause(800); });
+    bande.addEventListener("focusin", function () { pause(6000); });
+
+    var tour = function (t) {
+      var dt = dernier === null ? 0 : Math.min((t - dernier) / 1000, 0.1);
+      dernier = t;
+      if (cible !== null) {
+        var reste = cible - pos;
+        if (Math.abs(reste) < 0.5) { pos = cible; cible = null; }
+        else { pos += reste * Math.min(1, dt * 7); }
+        if (boucle) { var w = largeur(); if (w > 0 && cible !== null && (pos >= w || pos < 0)) { var dec = pos >= w ? -w : w; pos += dec; cible += dec; } }
+        appliquer();
+      } else if (boucle && !survol && !depart && t > pauseJusqua) {
+        pos += VITESSE * dt; appliquer();
+      }
+      window.requestAnimationFrame(tour);
+    };
+    window.requestAnimationFrame(tour);
   }
-  document.querySelectorAll("[data-si-absent]").forEach(function (el) {
-    if (valeur(el.getAttribute("data-si-absent"))) { el.hidden = true; }
-  });
 
   /* 3. Formulaire de contact -----------------------------------------------
      Le site est statique : le formulaire prépare un e-mail dans la messagerie
